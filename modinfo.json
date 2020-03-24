@@ -1,0 +1,11 @@
+{
+  "type": "code",
+  "modid": "dominionsvitality",
+  "name": "dominionsvitality",
+  "author": "archpriest",
+  "description": "A mod that adds conditions such as thirst, warmth and cold to characters",
+  "version": "1.0.0",
+  "dependency": {
+    "game": ""
+  }
+}
