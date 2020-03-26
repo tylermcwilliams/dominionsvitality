@@ -8,10 +8,6 @@ namespace dominions.vitality
 {
     class EntityBehaviorThirst : EntityBehavior
     {
-        public EntityBehaviorThirst(Entity entity) : base(entity)
-        {
-        }
-
         public float Thirst
         {
             get
@@ -24,6 +20,11 @@ namespace dominions.vitality
             }
         }
 
+        public EntityBehaviorThirst(Entity entity) : base(entity)
+        {
+
+        }
+
         public override void Initialize(EntityProperties properties, JsonObject attributes)
         {
             base.Initialize(properties, attributes);
@@ -34,7 +35,7 @@ namespace dominions.vitality
         {
             secondsSinceLastUpdate += deltaTime;
 
-            if (secondsSinceLastUpdate >= 5)
+            if (secondsSinceLastUpdate >= 10)
             {
                 this.secondsSinceLastUpdate = 0;
 
@@ -47,9 +48,9 @@ namespace dominions.vitality
                     }, 1);
                 }
 
-                float temp = entity.GetBehavior<EntityBehaviorBodyheat>().Temperature - 29;
+                float temp = entity.GetBehavior<EntityBehaviorBodyheat>().Temperature - 29; // this gives range between 1 and 13
 
-                Thirst -= temp > 9 ? temp * 1.1f : GameMath.Clamp(temp, 2.5f, 9);
+                Thirst -= temp > 9 ? temp * 1.6f : GameMath.Clamp(temp * 1.4f, 2.5f, 9);
             }
         }
 

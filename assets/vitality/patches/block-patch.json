@@ -1,0 +1,44 @@
+﻿[
+  {
+    "file": "game:blocktypes/wood/generic/firepit",
+    "op": "add",
+    "path": "/entityBehaviors",
+    "value": [
+      {
+        "name": "warmentities",
+        "properties": {
+          "heatRange": 8,
+          "heatTemp": 0.3
+        }
+      }
+    ]
+  },
+  {
+    "file": "game:blocktypes/stone/generic/forge",
+    "op": "add",
+    "path": "/entityBehaviors",
+    "value": [
+      {
+        "name": "warmentities",
+        "properties": {
+          "heatRange": 8,
+          "heatTemp": 0.5
+        }
+      }
+    ]
+  },
+  {
+    "file": "game:blocktypes/charcoalpit",
+    "op": "add",
+    "path": "/entityBehaviors",
+    "value": [
+      {
+        "name": "warmentities",
+        "properties": {
+          "heatRange": 12,
+          "heatTemp": 0.1
+        }
+      }
+    ]
+  }
+]

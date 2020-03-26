@@ -21,8 +21,8 @@ namespace dominions.vitality
         public override void StartClientSide(ICoreClientAPI api)
         {
             this.capi = api;
-
-            RegisterClientEvents();
+            RegisterThirstEvents();
+            //RegisterClientEvents();
 
             base.StartClientSide(api);
         }
@@ -36,9 +36,12 @@ namespace dominions.vitality
         {
             this.api.RegisterEntityBehaviorClass("bodyheat", typeof(EntityBehaviorBodyheat));
             this.api.RegisterEntityBehaviorClass("thirst", typeof(EntityBehaviorThirst));
+
+            this.api.RegisterBlockEntityBehaviorClass("warmentities", typeof(BehaviorWarmEntities));
         }
 
-        void RegisterClientEvents()
+        bool isDrinking = false;
+        void RegisterThirstEvents()
         {
             // VITALS HUD
             capi.Event.PlayerEntitySpawn += (IClientPlayer player) =>
@@ -47,43 +50,44 @@ namespace dominions.vitality
                 {
                     HudElementVitals hudVitals = new HudElementVitals(capi);
                     hudVitals.ComposeBars();
-
-                    if (capi.World.Player.InventoryManager.ActiveHotbarSlot.Empty && capi.World.Player.Entity.WatchedAttributes.GetFloat("thirst") < 1500)
-                    {
-                        capi.World.ForceLiquidSelectable = true;
-                    }
                 }
             };
 
-            // ON CHANGE SLOT
-            capi.Event.AfterActiveSlotChanged += (ActiveSlotChangeEventArgs args) =>
-            {
-                if (capi.World.Player.InventoryManager.ActiveHotbarSlot.Empty && capi.World.Player.Entity.WatchedAttributes.GetFloat("thirst") < 1500)
-                {
-                    capi.World.ForceLiquidSelectable = true;
-                }
-                else
-                {
-                    capi.World.ForceLiquidSelectable = false;
-                }
-            };
-
-            // DRINKING FROM BLOCKS
+            // MOUSE EVENT
             capi.Event.MouseDown += (MouseEvent e) =>
             {
-                if (e.Button != EnumMouseButton.Right
-                ||
-                capi.World.ForceLiquidSelectable == false)
+                if (e.Button != EnumMouseButton.Right || isDrinking)
                 {
                     return;
                 }
 
-                if (capi.World.Player.CurrentBlockSelection != null && capi.World.BlockAccessor.GetBlock(capi.World.Player.CurrentBlockSelection.Position).LiquidCode == "water")
+                isDrinking = true;
+                capi.World.ForceLiquidSelectable = true;
+
+                long cbid = 0;
+                cbid = capi.World.RegisterGameTickListener((float dt) =>
                 {
-                    capi.Network.SendEntityPacket(capi.World.Player.Entity.EntityId, 888, null);
-                }
+                    DrinkWater(ref cbid);
+                }, 1000);
 
             };
         }
+
+        void DrinkWater(ref long callbackid)
+        {
+            if (capi.World.Player.CurrentBlockSelection != null
+                &&
+                capi.World.BlockAccessor.GetBlock(capi.World.Player.CurrentBlockSelection.Position).LiquidCode == "water")
+            {
+                capi.Network.SendEntityPacket(capi.World.Player.Entity.EntityId, 888, null);
+            };
+
+            isDrinking = false;
+            capi.World.ForceLiquidSelectable = false;
+
+            capi.World.UnregisterGameTickListener(callbackid);
+        }
+
     }
+
 }

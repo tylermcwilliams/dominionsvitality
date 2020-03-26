@@ -65,15 +65,15 @@
     <Content Include="modinfo.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\BlockEntity\BehaviorWarmEntities.cs" />
     <Compile Include="src\Core.cs" />
     <Compile Include="src\Entity\Behavior\EntityBehaviorThirst.cs" />
     <Compile Include="src\Entity\Behavior\EntityBehaviorBodyheat.cs" />
     <Compile Include="src\Gui\HudElementsVitals.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="src\BlockBehavior\" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="assets\vitality\patches\block-patch.json" />
     <None Include="assets\vitality\patches\player-patch.json" />
     <None Include="README.md" />
   </ItemGroup>

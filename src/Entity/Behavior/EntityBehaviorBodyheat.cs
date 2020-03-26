@@ -3,6 +3,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.GameContent;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 
 namespace dominions.vitality
 {
@@ -34,7 +35,7 @@ namespace dominions.vitality
         public override void OnGameTick(float deltaTime)
         {
             secondsSinceLastUpdate += deltaTime;
-            if (secondsSinceLastUpdate >= 7)
+            if (secondsSinceLastUpdate >= 10)
             {
                 if (this.Temperature < 32)
                 {
@@ -82,7 +83,7 @@ namespace dominions.vitality
                 // clothing:
 
                 // change temperature
-                this.Temperature -= tempChange * 0.004f;
+                this.Temperature -= tempChange * 0.02f;
             }
         }
 
