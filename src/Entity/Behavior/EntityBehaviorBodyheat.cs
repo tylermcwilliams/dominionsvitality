@@ -57,7 +57,7 @@ namespace dominions.vitality
                 tempChange += sunStrength;
 
                 // if player is outside, make temp more impactful
-                // 
+                //
                 if (world.BlockAccessor.GetRainMapHeightAt(entity.ServerPos.AsBlockPos) <= entity.ServerPos.Y)
                 {
                     tempChange *= 1.2f;

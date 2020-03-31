@@ -70,10 +70,11 @@ namespace dominions.vitality
                             break;
                         }
                         continue;
+                    default:
+                        continue;
                 }
 
                 playerEntity.GetBehavior<EntityBehaviorBodyheat>()?.HeatUp(heatTemp * distanceModifier);
-
             }
         }
     }
