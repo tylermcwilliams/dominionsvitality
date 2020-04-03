@@ -1,15 +1,24 @@
 ﻿using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 
 namespace dominions.vitality
 {
     class HudElementVitals : HudElement
     {
+        Entity entity;
         GuiElementStatbar bodyheatBar;
         GuiElementStatbar thirstBar;
 
         public HudElementVitals(ICoreClientAPI capi) : base(capi)
         {
+            entity = capi.World.Player.Entity;
+
+            if (entity == null)
+            {
+                return;
+            }
+
             capi.World.Player.Entity.WatchedAttributes.RegisterModifiedListener("bodyheat", () =>
             {
                 this.UpdateBodyheat();
@@ -23,9 +32,9 @@ namespace dominions.vitality
 
         void UpdateBodyheat()
         {
-            if (capi.World.Player == null) return;
+            if (capi.World.Player == null || entity == null) return;
 
-            bodyheatBar.SetValue(capi.World.Player.Entity.WatchedAttributes.GetFloat("bodyheat") - 30);
+            bodyheatBar.SetValue(entity.WatchedAttributes.GetTreeAttribute("bodyheat").GetFloat("currentbodyheat") - 30);
 
             if (bodyheatBar.GetValue() < 2 || bodyheatBar.GetValue() > 10)
             {
@@ -39,9 +48,9 @@ namespace dominions.vitality
 
         void UpdateThirst()
         {
-            if (capi.World.Player == null) return;
+            if (capi.World.Player == null || entity == null) return;
 
-            thirstBar.SetValue(capi.World.Player.Entity.WatchedAttributes.GetFloat("thirst", 0));
+            thirstBar.SetValue(entity.WatchedAttributes.GetTreeAttribute("thirst").GetFloat("hydration"));
 
             if (thirstBar.GetValue() < 300)
             {
@@ -92,10 +101,13 @@ namespace dominions.vitality
             thirstBar.FlashTime = 2;
             thirstBar.SetMinMax((float)0, (float)1500);
 
-            this.UpdateBodyheat();
-            this.UpdateThirst();
+            if (entity != null)
+            {
+                this.UpdateBodyheat();
+                this.UpdateThirst();
 
-            TryOpen();
+                TryOpen();
+            }
         }
 
         public override bool ShouldReceiveMouseEvents()

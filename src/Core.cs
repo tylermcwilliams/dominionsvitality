@@ -2,6 +2,13 @@
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
+[assembly: ModInfo("dominionsvitality",
+    Description = "A mod that adds conditions such as thirst, warmth and cold to characters",
+    Website = "",
+    Authors = new[] { "archpriest" },
+    Version = "1.0.2"
+    )]
+
 namespace dominions.vitality
 {
     class Core : ModSystem
@@ -22,7 +29,7 @@ namespace dominions.vitality
         {
             this.capi = api;
             RegisterThirstEvents();
-            //RegisterClientEvents();
+            RegisterClientEvents();
 
             base.StartClientSide(api);
         }
@@ -40,10 +47,8 @@ namespace dominions.vitality
             this.api.RegisterBlockEntityBehaviorClass("warmentities", typeof(BehaviorWarmEntities));
         }
 
-        bool isDrinking = false;
-        void RegisterThirstEvents()
+        void RegisterClientEvents()
         {
-            // VITALS HUD
             capi.Event.PlayerEntitySpawn += (IClientPlayer player) =>
             {
                 if (player.PlayerUID == capi.World.Player.PlayerUID)
@@ -52,7 +57,11 @@ namespace dominions.vitality
                     hudVitals.ComposeBars();
                 }
             };
+        }
 
+        bool isDrinking = false;
+        void RegisterThirstEvents()
+        {
             // MOUSE EVENT
             capi.Event.MouseDown += (MouseEvent e) =>
             {

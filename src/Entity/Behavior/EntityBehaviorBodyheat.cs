@@ -3,30 +3,46 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.GameContent;
 using Vintagestory.API.MathTools;
-using Vintagestory.API.Server;
+using Vintagestory.API.Datastructures;
 
 namespace dominions.vitality
 {
     class EntityBehaviorBodyheat : EntityBehavior
     {
+        ITreeAttribute bodyheatTree;
+
         public EntityBehaviorBodyheat(Entity entity) : base(entity)
         {
         }
 
-        public float Temperature
+        public float Bodyheat
         {
-            get
-            {
-                return entity.WatchedAttributes.GetFloat("bodyheat", 36);
-            }
+            get { return bodyheatTree.GetFloat("currentbodyheat"); }
             set
             {
-                entity.WatchedAttributes.SetFloat("bodyheat", GameMath.Clamp(value, 30, 42));
+                bodyheatTree.SetFloat("currentbodyheat", GameMath.Clamp(value, 30, 42));
+                entity.WatchedAttributes.MarkPathDirty("bodyheat");
             }
+        }
+
+        public float MaxBodyheat
+        {
+            get { return bodyheatTree.GetFloat("maxbodyheat"); }
+            set { bodyheatTree.SetFloat("maxbodyheat", value); entity.WatchedAttributes.MarkPathDirty("bodyheat"); }
         }
 
         public override void Initialize(EntityProperties properties, JsonObject attributes)
         {
+            bodyheatTree = entity.WatchedAttributes.GetTreeAttribute("bodyheat");
+
+            if (bodyheatTree == null)
+            {
+                entity.WatchedAttributes.SetAttribute("bodyheat", bodyheatTree = new TreeAttribute());
+
+                Bodyheat = 36;
+                MaxBodyheat = 42;
+
+            }
 
             base.Initialize(properties, attributes);
         }
@@ -34,23 +50,25 @@ namespace dominions.vitality
         float secondsSinceLastUpdate;
         public override void OnGameTick(float deltaTime)
         {
+
+
             secondsSinceLastUpdate += deltaTime;
             if (secondsSinceLastUpdate >= 10)
             {
-                if (this.Temperature < 32)
+                if (this.Bodyheat < 32)
                 {
                     entity.ReceiveDamage(new DamageSource()
                     {
                         Source = EnumDamageSource.Weather,
                         Type = EnumDamageType.PiercingAttack
-                    }, (36 - Temperature) / 3);
+                    }, (36 - Bodyheat) / 3);
                 }
 
                 secondsSinceLastUpdate = 0;
                 IWorldAccessor world = entity.World;
 
                 // Grab temp at block, subtract it to current temp to get initial magnitude
-                float tempChange = this.Temperature - world.BlockAccessor.GetClimateAt(entity.ServerPos.AsBlockPos).Temperature;
+                float tempChange = this.Bodyheat - world.BlockAccessor.GetClimateAt(entity.ServerPos.AsBlockPos).Temperature;
 
                 // daylight makes it warmer
                 float sunStrength = 10 - (world.Calendar.DayLightStrength * 20);
@@ -83,13 +101,18 @@ namespace dominions.vitality
                 // clothing:
 
                 // change temperature
-                this.Temperature -= tempChange * 0.02f;
+                this.Bodyheat -= tempChange * 0.02f;
             }
         }
 
         public void HeatUp(float amount)
         {
-            this.Temperature += amount;
+            this.Bodyheat += amount;
+        }
+
+        public override void OnEntityDeath(DamageSource damageSourceForDeath)
+        {
+            Bodyheat = 36;
         }
 
         public override string PropertyName()

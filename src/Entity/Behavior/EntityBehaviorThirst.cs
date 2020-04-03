@@ -3,21 +3,27 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
+using Vintagestory.API.Datastructures;
 
 namespace dominions.vitality
 {
     class EntityBehaviorThirst : EntityBehavior
     {
-        public float Thirst
+        ITreeAttribute thirstTree;
+        public float Hydration
         {
-            get
-            {
-                return entity.WatchedAttributes.GetFloat("thirst", 0);
-            }
+            get { return thirstTree.GetFloat("hydration"); }
             set
             {
-                entity.WatchedAttributes.SetFloat("thirst", GameMath.Clamp(value, 0, 1500));
+                thirstTree.SetFloat("hydration", GameMath.Clamp(value, 30, 42));
+                entity.WatchedAttributes.MarkPathDirty("thirst");
             }
+        }
+
+        public float MaxHydration
+        {
+            get { return thirstTree.GetFloat("maxhydration"); }
+            set { thirstTree.SetFloat("maxhydration", value); entity.WatchedAttributes.MarkPathDirty("thirst"); }
         }
 
         public EntityBehaviorThirst(Entity entity) : base(entity)
@@ -27,6 +33,14 @@ namespace dominions.vitality
 
         public override void Initialize(EntityProperties properties, JsonObject attributes)
         {
+            thirstTree = entity.WatchedAttributes.GetTreeAttribute("thirst");
+
+            if (thirstTree == null)
+            {
+                Hydration = 1500;
+                MaxHydration = 1500;
+            }
+
             base.Initialize(properties, attributes);
         }
 
@@ -39,7 +53,7 @@ namespace dominions.vitality
             {
                 this.secondsSinceLastUpdate = 0;
 
-                if (this.Thirst <= 0)
+                if (this.Hydration <= 0)
                 {
                     entity.ReceiveDamage(new DamageSource()
                     {
@@ -48,15 +62,15 @@ namespace dominions.vitality
                     }, 1);
                 }
 
-                float temp = entity.GetBehavior<EntityBehaviorBodyheat>().Temperature - 29; // this gives range between 1 and 13
+                float temp = entity.GetBehavior<EntityBehaviorBodyheat>().Bodyheat - 29; // this gives range between 1 and 13
 
-                Thirst -= temp > 9 ? temp * 1.6f : GameMath.Clamp(temp * 1.4f, 2.5f, 9);
+                Hydration -= temp > 9 ? temp * 1.6f : GameMath.Clamp(temp * 1.4f, 2.5f, 9);
             }
         }
 
         public void Drink(int quench)
         {
-            this.Thirst += quench;
+            this.Hydration += quench;
         }
 
         public override string PropertyName()

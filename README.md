@@ -8,6 +8,8 @@ A vintage story mod that aims at adding bodyheat and thirst.
 
 ## Bodyheat
 
+1
+
 - Bodyheat goes down every 10 seconds.
 - BehaviorHeatEntities runs `BehaviorBodyheat.HeatEntity(int amount)` for players within range. - Campfire - Forge - Charcoal pit
 
